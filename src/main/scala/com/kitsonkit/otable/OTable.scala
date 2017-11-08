@@ -20,10 +20,20 @@ object OTable {
   def main(args: Array[String]): Unit = {
     c.appendPar(document.body,"Hello World!")
     println("Hello world!")
+    val sd = new SimpleDiv("Simple Div")
+    document.body.appendChild(sd.sDiv())
   }
 
   @JSExportTopLevel("addClickedMessage")
   def addClickedMessage(): Unit = {
     c.appendPar(document.body, "You clicked the button!")
+  }
+}
+
+class SimpleDiv(txt:String) {
+  import scalatags.JsDom.all._
+  def sDiv()={
+    div(txt)
+      .render
   }
 }
