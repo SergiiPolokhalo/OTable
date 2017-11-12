@@ -18,21 +18,18 @@ case class ODblClick(action: MouseEvent => Unit) extends OAction
 case class OCell[T](data: T, action: Seq[OAction] = List())
 
 object OTableWizard {
-
+  implicit def mouseEvent2SrcElement( me: MouseEvent) = me.target.asInstanceOf[dom.Element]
+  implicit def target2SrcElement(e: EventTarget) = e.asInstanceOf[dom.Element]
   val titleAction = List(
     ODblClick(x => {
-      x.target.classList.toggle("ui")
-      x.target.classList.toggle("button")
+      x.classList.toggle("rounded-circle")
     }
     ),
     OClick(x => {
-      x.target.innerHTML = "pppp"
+      //x.innerHTML = "pppp"
     })
   )
 
-  implicit def target2SrcElement(e: EventTarget) = {
-    e.asInstanceOf[dom.Element]
-  }
   val metaTitle = List(
     OCell("First", titleAction),
     OCell("Middle", titleAction),
@@ -41,7 +38,7 @@ object OTableWizard {
   var output: Element = _
 
   def oTable[T](titles: Seq[OCell[T]], content: Seq[Seq[OCell[T]]]) = {
-    table(
+    table( cls := "table table-striped",
       oTableHeader(titles),
       oTableBody(content)
     )
@@ -50,7 +47,10 @@ object OTableWizard {
   def oTableHeader[T](titles: Seq[OCell[T]]) = {
     thead(
       for (title <- titles) yield {
-        th(matcher(title.action))(title.data.toString)
+        th(matcher(title.action))(
+          title.data.toString,
+          i(cls := "fa fa-caret-down")
+        )
       })
   }
 
