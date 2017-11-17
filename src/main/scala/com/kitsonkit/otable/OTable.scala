@@ -22,7 +22,11 @@ object OTableWizard {
   implicit def target2SrcElement(e: EventTarget) = e.asInstanceOf[dom.Element]
   val titleAction = List(
     ODblClick(x => {
-      x.classList.toggle("rounded-circle")
+      //get Parent, find I by fa-class
+      val elem:Element = x
+//      elem.parentNode.childNodes.
+      x.classList.toggle("fa-caret-down")
+      x.classList.toggle("fa-caret-up")
     }
     ),
     OClick(x => {
@@ -35,6 +39,11 @@ object OTableWizard {
     OCell("Middle", titleAction),
     OCell("Last", titleAction)
   )
+  val metaBody = (for (row <- 1 to  metaTitle.size) yield {
+    (for(col <- 1 to metaTitle.size) yield OCell(s"$row - $col")).toList
+  }).toList
+
+
   var output: Element = _
 
   def oTable[T](titles: Seq[OCell[T]], content: Seq[Seq[OCell[T]]]) = {
@@ -85,9 +94,9 @@ object OTableWizard {
 
 class OTable() {
 
-  import OTableWizard.{metaTitle, oTable, output}
+  import OTableWizard.{metaTitle,metaBody, oTable, output}
 
-  val d = oTable(metaTitle, List(metaTitle, metaTitle))
+  val d = oTable(metaTitle, metaBody)
   output.appendChild(d.render)
 
 }
