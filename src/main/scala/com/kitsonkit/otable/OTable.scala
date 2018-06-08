@@ -4,50 +4,59 @@ import org.scalajs.dom
 import org.scalajs.dom.raw.MouseEvent
 import org.scalajs.dom.{Element, EventTarget}
 import scalatags.JsDom.all._
+import scalatags.JsDom
 
 import scala.scalajs.js.annotation.JSExportTopLevel
+//TODO
+//Custom header
+//Add functionality for work with direction/filter
+//Any size column with custom widget
 
-
-trait ODataSource[H,V] {
-  def headers:Seq[H]
-  def row(rowNum:Int):Seq[V]
-  def rows:Int
+trait OHeader {
+  def render(): JsDom.TypedTag[dom.html.TableHeaderCell]
 }
 
-object ODSImpl extends ODataSource[String,String] {
-  override def headers: Seq[String] = Seq("A","b","_C_")
-
-  override def row(rowNum: Int): Seq[String] = headers.map("--"+_+"--")
-
-  override def rows: Int = 3
+class OHeaderImpl(text:String="No title", filter:Option[String]=None, direction:Option[Boolean]=None) extends OHeader {
+  override def render() = {
+    th(
+      span(text),
+      direction match {
+        case Some(d) => if (d) span("UP") else span("down")
+        case None => ""
+      },
+      filter match {
+        case Some(s) => span("[F]")
+        case None => span("[*]")
+      }
+    )
+  }
 }
 
 object OTableWizard {
   implicit def mouseEvent2SrcElement( me: MouseEvent) = me.target.asInstanceOf[dom.Element]
   implicit def target2SrcElement(e: EventTarget) = e.asInstanceOf[dom.Element]
 
-  val ds = ODSImpl
-
   var output: Element = _
 
-  def oTable() = {
+  def oTable():JsDom.TypedTag[dom.html.Table] = {
+    val headers = List(new OHeaderImpl, new OHeaderImpl("----",Some("test")))
     table(
       //make headers
-      for (h <- ds.headers) yield {
-        th( h )
-      },
-      //make rows
-      for (i <- 0 until ds.rows) yield {
-        tr(
-          for (j <- ds.row(i)) yield {
-            td(
-              span(
-                j
-              )
-            )
-          }
-        )
-      }
+      for (h <- headers) yield {
+        h.render()
+      }//,
+//      //make rows
+//      for (i <- ds.data()) yield {
+//        tr(
+//          for (j <- ds.row(i)) yield {
+//            td(
+//              span(
+//                j
+//              )
+//            )
+//          }
+//        )
+//      }
     )
   }
 
@@ -56,15 +65,9 @@ object OTableWizard {
     output = dom.document.getElementById(id)
     new OTable()
   }
-
 }
 
 class OTable() {
-
   import OTableWizard.{oTable, output}
-
-  val d = oTable()
-  output.appendChild(d.render)
-
+  output.appendChild(oTable().render)
 }
-
